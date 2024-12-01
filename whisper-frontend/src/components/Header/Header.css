@@ -1,0 +1,14 @@
+/* src/styles/Header.css */
+.header {
+    /* --header-height: 120px; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 6vh;
+    background-color: #4CAF50;
+    text-align: center;
+}
+
+.header h1 {
+    color: white;
+}

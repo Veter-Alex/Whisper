@@ -1,0 +1,96 @@
+/* src/styles/Home.css */
+
+/* Определяем базовые переменные для размеров */
+:root {
+    --header-height: 4vh; /* Высота заголовка */
+    --menu-height: 2vh; /* Высота меню */
+    --footer-height: 45vh; /* Высота футера */
+    --total-nav-height: calc(var(--header-height) + var(--menu-height)); /* Общая высота навигации */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Высота на весь экран */
+}
+
+.content-wrapper {
+    display: flex;
+    flex: 1; /* Занимает всю доступную высоту */
+    flex-direction: row;
+    overflow: hidden; /* Прячем переполнение, если контент выходит за пределы */
+}
+
+.sidebar {
+    width: 250px; /* Ширина боковой панели */
+    background-color: #f0f0f0; /* Цвет фона */
+    padding: 10px;
+    border-right: 1px solid #ddd; /* Разделительная линия */
+    flex-shrink: 0; /* Не сжимается при уменьшении окна */
+    overflow-y: auto; /* Прокрутка по вертикали, если контент не помещается */
+}
+
+.dirList,
+.subDirList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.subDirList {
+    padding-left: 20px; /* Отступы для вложенных элементов */
+}
+
+.mainContent {
+    flex: 1; /* Основная часть занимает оставшуюся высоту */
+    padding: 20px;
+    overflow-y: auto; /* Прокрутка по вертикали */
+    background-color: #ffffff; /* Белый фон для основной части */
+}
+
+.fileList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer {
+    height: var(--footer-height); /* Высота футера */
+    background-color: #f7f7f7; /* Цвет фона футера */
+    padding: 20px;
+    border-top: 1px solid #ddd; /* Верхняя граница */
+    text-align: center;
+    flex-shrink: 0; /* Футер не должен сжиматься */
+}
+
+.button {
+    background: none;
+    border: none;
+    color: #007bff; /* Цвет текста кнопок */
+    text-align: left;
+    cursor: pointer;
+    padding: 5px 10px;
+    width: 100%; /* Кнопка на всю ширину */
+    text-decoration: underline;
+    font-size: 16px;
+}
+
+.button:hover {
+    color: #0056b3; /* Цвет текста при наведении */
+    background-color: #e6f7ff; /* Легкий фон при наведении */
+}
+
+/* Адаптивность: для маленьких экранов */
+@media (max-width: 768px) {
+    .content-wrapper {
+        flex-direction: column; /* На маленьких экранах - вертикальный layout */
+    }
+
+    .sidebar {
+        width: 100%; /* Боковая панель будет занимать всю ширину на маленьких экранах */
+    }
+
+    .footer {
+        height: auto; /* Футер будет адаптироваться */
+    }
+}
