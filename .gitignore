@@ -1,0 +1,64 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+db.sqlite3  # Если используете SQLite
+*.log
+*.pot
+*.py[cod]
+*.swp
+*.swo
+
+# Django
+*.log
+*.pot
+*.py[cod]
+*.swp
+*.swo
+media/
+staticfiles/
+
+# Virtualenv
+venv/
+env/
+ENV/
+venv.bak/
+env.bak/
+
+# VS Code
+.vscode/
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# React build artifacts
+build/
+dist/
+*.log
+
+# .env files (если есть для окружений)
+.env
+.env.*
+
+# Python packaging
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Coverage directory
+.coverage/
+coverage.xml
+
+# Django migrations (если не хотите версионировать миграции)
+migrations/
+
+# Django secret key, .env file, etc.
+*.env
+
+# Дистрибутивы программ
+/Distributive
