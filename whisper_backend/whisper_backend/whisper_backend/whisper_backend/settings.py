@@ -10,7 +10,57 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import sys
 from pathlib import Path
+
+from loguru import logger
+
+# Настройки логирования LOGURU
+logger.remove()  # Удаляем стандартный обработчик (вывод в консоль по умолчанию)
+
+# Добавляем обработчик для вывода в консоль
+logger.add(
+    sys.stdout,  # Поток вывода
+    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+    "<level>{level: <8}</level> | "
+    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+    "<level>{message}</level>",
+    level="INFO",  # Минимальный уровень логов для консоли
+    colorize=True,  # Цветное форматирование
+    enqueue=True,  # Асинхронная запись
+)
+
+# Добавляем обработчик для записи логов в файл
+logger.add(
+    "logs/whisper_backend_{time:YYYY-MM-DD}.log",  # Путь к файлу логов
+    rotation="1 day",  # Ротация логов ежедневно
+    retention="7 days",  # Хранить логи 7 дней
+    compression="zip",  # Сжимать устаревшие логи
+    level="DEBUG",  # Минимальный уровень логов для файла
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",  # Формат
+    encoding="utf-8",  # Кодировка файла
+)
+
+# Добавляем обработчик для записи ошибок в отдельный файл
+logger.add(
+    "logs/whisper_backend_errors.log",
+    level="ERROR",  # Логировать только ошибки и критические сообщения
+    rotation="500 MB",  # Ротация по размеру файла
+    retention="1 month",  # Хранить логи ошибок 1 месяц
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message} | {exception}",  # Включение исключений в лог
+    diagnose=True,  # Включение диагностической информации
+)
+
+# # Пример фильтрации: можно логировать только сообщения из определенного модуля или пакета
+# logger.add(
+#     "logs/specific_module.log",
+#     level="DEBUG",
+#     filter="my_app.specific_module",  # Логировать только из указанного модуля
+#     rotation="10 MB",
+#     retention="10 days",
+#     format="{time:YYYY-MM-DD HH:mm:ss} | {message}",
+# )
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,7 +87,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "config",  # Добавляем приложение config
+    "config",
+    "files",
 ]
 
 MIDDLEWARE = [
@@ -77,7 +128,7 @@ WSGI_APPLICATION = "whisper_backend.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",  # Имя базы данных
+        "NAME": "veteran_db",  # Имя базы данных
         "USER": "postgres",  # Имя пользователя
         "PASSWORD": "root",  # Пароль
         "HOST": "localhost",  # Хост, обычно localhost

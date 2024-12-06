@@ -1,22 +1,21 @@
-from django.db import models
+from django.db import connection, models
 
 
 class AppSetting(models.Model):
-    # Название настройки (ключ)
-    key = models.CharField(max_length=255, unique=True)
+    """Модель для хранения пользовательских настроек приложения."""
 
-    # Значение настройки (например, строка, число, JSON и т. д.)
-    value = models.TextField()
-
-    # Описание настройки (необязательно)
-    description = models.TextField(blank=True, null=True)
+    key = models.CharField(max_length=255, unique=True)  # Название настройки
+    value = models.TextField()  # Значение настройки
+    description = models.TextField(
+        blank=True, null=True
+    )  # Описание настройки (опционально)
 
     def __str__(self):
         return f"{self.key}: {self.value}"
 
     @classmethod
     def get_setting(cls, key):
-        """Метод для получения значения настройки по ключу."""
+        """Получение значения настройки по ключу."""
         try:
             setting = cls.objects.get(key=key)
             return setting.value
@@ -25,8 +24,13 @@ class AppSetting(models.Model):
 
     @classmethod
     def set_setting(cls, key, value):
-        """Метод для установки значения настройки по ключу."""
+        """Установка значения настройки по ключу."""
         setting, created = cls.objects.update_or_create(
             key=key, defaults={"value": value}
         )
         return setting
+
+    @classmethod
+    def table_exists(cls):
+        """Проверяет, существует ли таблица модели в базе данных."""
+        return cls._meta.db_table in connection.introspection.table_names()
