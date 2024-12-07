@@ -5,7 +5,7 @@ from loguru import logger
 
 
 @transaction.atomic
-def sync_database_with_directory(root_path=None, parent_directory=None):
+def sync_database_with_directory(root_path, parent_directory=None):
     """
     Синхронизирует базу данных с файловой системой, начиная с заданной директории.
 
@@ -13,15 +13,11 @@ def sync_database_with_directory(root_path=None, parent_directory=None):
     :param parent_directory: Объект Directory, представляющий родительскую директорию в базе данных.
     """
     from .models import Directory, File
-    from config.models import AppSetting
-    
-    if not root_path:
-        root_path = AppSetting.objects.get(key="root_directory").value
-    
+
     # Получаем список всех поддиректорий и файлов, которые уже есть в базе данных
     # для текущей директории.
     # Для директорий используем `parent_directory` для фильтрации по родителю.
-    logger.info(f"Синхронизация {root_path}")
+    logger.info(f"Выполнение sync_database_with_directory для {root_path}")
     existing_directories = {
         directory.name: directory
         for directory in Directory.objects.filter(parent=parent_directory)

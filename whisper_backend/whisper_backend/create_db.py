@@ -19,7 +19,6 @@ def create_database():
 
     try:
         # Соединение с PostgreSQL
-        logger.info("Соединение с PostgreSQL...")
         conn = psycopg2.connect(
             dbname="postgres",
             user=db_user,
@@ -48,12 +47,12 @@ def create_database():
             logger.info(f"База данных '{db_name}' успешно создана.")
 
             # Применяем миграции
-            # logger.info("Применение миграций...")
-            # run_subprocess_with_virtualenv(
-            #     "D:\\Project\\project_Python\\Whisper\\.venv\\Scripts\\activate.bat",
-            #     "python manage.py migrate",
-            # )
-            # logger.info("Миграции успешно выполнены.")
+            logger.info("Применение миграций...")
+            run_subprocess_with_virtualenv(
+                "D:\\Programming\\Projects\\Python\\Whisper\\whisper_backend\\.venv\\Scripts\\activate.bat",
+                "python manage.py migrate",
+            )
+            logger.info("Миграции успешно выполнены.")
 
         cursor.close()
         conn.close()

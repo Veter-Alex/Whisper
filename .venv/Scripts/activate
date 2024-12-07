@@ -40,10 +40,10 @@ deactivate nondestructive
 if [ "${OSTYPE:-}" = "cygwin" ] || [ "${OSTYPE:-}" = "msys" ] ; then
     # transform D:\path\to\venv to /d/path/to/venv on MSYS
     # and to /cygdrive/d/path/to/venv on Cygwin
-    export VIRTUAL_ENV=$(cygpath 'D:\Project\project_Python\Whisper\.venv')
+    export VIRTUAL_ENV=$(cygpath 'D:\Project\project_Python\Whisper_backend\.venv')
 else
     # use the path as-is
-    export VIRTUAL_ENV='D:\Project\project_Python\Whisper\.venv'
+    export VIRTUAL_ENV='D:\Project\project_Python\Whisper_backend\.venv'
 fi
 
 _OLD_VIRTUAL_PATH="$PATH"
