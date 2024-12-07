@@ -17,14 +17,15 @@ def sync_database_with_directory(root_path, parent_directory=None):
     # Получаем список всех поддиректорий и файлов, которые уже есть в базе данных
     # для текущей директории.
     # Для директорий используем `parent_directory` для фильтрации по родителю.
-    logger.info(f"Выполнение sync_database_with_directory для {root_path}")
+    logger.info(f"Выполнение синхронизацию с БД директории - {root_path}")
     existing_directories = {
         directory.name: directory
         for directory in Directory.objects.filter(parent=parent_directory)
     }
     # Для файлов используем `parent_directory` для фильтрации по директории, в которой они находятся.
     existing_files = {
-        file.name: file for file in File.objects.filter(directory=parent_directory)
+        file.name: file
+        for file in File.objects.filter(directory=parent_directory)
     }
 
     # Получаем список всех элементов (файлов и директорий) на файловой системе
