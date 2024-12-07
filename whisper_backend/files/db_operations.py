@@ -48,8 +48,8 @@ def create_database():
             logger.info(f"База данных '{db_name}' успешно создана.")
         cursor.close()
         conn.close()
-    except Exception as e:
-        logger.error(f"Ошибка при создании базы данных: {e}")
+    except Exception as err:
+        logger.error(f"Ошибка при создании базы данных: {err}")
     else:
         try:
             # Применяем миграции
@@ -57,8 +57,8 @@ def create_database():
             call_command("makemigrations")
             call_command("migrate")
             logger.info("Миграции успешно применены.")
-        except Exception as e:
-            logger.error(f"Ошибка при создании миграций: {e}")
+        except Exception as err:
+            logger.error(f"Ошибка при создании миграций: {err}")
 
         try:
             # Создание супер пользователя Django
@@ -88,5 +88,5 @@ def create_database():
                 logger.info(
                     f"Супер пользователь Django '{username}' уже существует."
                 )
-        except Exception as e:
-            logger.error(f"Ошибка при создании супер пользователя: {e}")
+        except Exception as err:
+            logger.error(f"Ошибка при создании супер пользователя: {err}")

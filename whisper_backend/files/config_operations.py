@@ -22,5 +22,5 @@ def initialize_app_settings(sender, **kwargs):
                 f"Настройка 'root_directory = {root_directory} ' создана"
                 f" или уже существует."
             )
-    except Exception as e:
-        logger.error(f"Ошибка инициализации настроек: {e}")
+    except Exception as err:
+        logger.error(f"Ошибка инициализации настроек: {err}")
