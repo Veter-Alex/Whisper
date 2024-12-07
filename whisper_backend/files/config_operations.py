@@ -19,7 +19,8 @@ def initialize_app_settings(sender, **kwargs):
             )
             root_directory = AppSetting.objects.get(key="root_directory").value
             logger.info(
-                f"Настройка 'root_directory = {root_directory} ' создана или уже существует."
+                f"Настройка 'root_directory = {root_directory} ' создана"
+                f" или уже существует."
             )
     except Exception as e:
         logger.error(f"Ошибка инициализации настроек: {e}")

@@ -24,9 +24,3 @@ class FilesConfig(AppConfig):
             # Синхронизируем структуру директории с базой данных.
             root_directory = AppSetting.objects.get(key="root_directory").value
             sync_database_with_directory(root_path=root_directory)
-        # # Создаем обработчик сигнала, который вызывает sync_database_with_directory
-        # def sync_with_directory(sender, **kwargs):
-        #     sync_database_with_directory(root_path=root_directory)
-
-        # # Подключаем обработчик к сигналу post_migrate
-        # sync_with_directory(sender=self)

@@ -16,7 +16,8 @@ from pathlib import Path
 from loguru import logger
 
 # Настройки логирования LOGURU
-logger.remove()  # Удаляем стандартный обработчик (вывод в консоль по умолчанию)
+# Удаляем стандартный обработчик (вывод в консоль по умолчанию)
+logger.remove()
 
 # Добавляем обработчик для вывода в консоль
 logger.add(
@@ -47,15 +48,18 @@ logger.add(
     level="ERROR",  # Логировать только ошибки и критические сообщения
     rotation="500 MB",  # Ротация по размеру файла
     retention="1 month",  # Хранить логи ошибок 1 месяц
-    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message} | {exception}",  # Включение исключений в лог
+    # Включение исключений в лог
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message} | {exception}",
     diagnose=True,  # Включение диагностической информации
 )
 
-# # Пример фильтрации: можно логировать только сообщения из определенного модуля или пакета
+# # Пример фильтрации: можно логировать только сообщения
+#   из определенного модуля или пакета
 # logger.add(
 #     "logs/specific_module.log",
 #     level="DEBUG",
-#     filter="my_app.specific_module",  # Логировать только из указанного модуля
+#     # Логировать только из указанного модуля
+#     filter="my_app.specific_module",
 #     rotation="10 MB",
 #     retention="10 days",
 #     format="{time:YYYY-MM-DD HH:mm:ss} | {message}",

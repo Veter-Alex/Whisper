@@ -1,4 +1,3 @@
-import os
 from loguru import logger
 import psycopg2
 from psycopg2 import sql
@@ -6,7 +5,6 @@ from psycopg2 import sql
 
 def create_database():
     from django.core.management import call_command
-    import django
     from django.contrib.auth.models import User
 
     logger.info(f"Проверка базы данных.")
@@ -76,6 +74,7 @@ def create_database():
             # django.setup()
 
             # Данные супер пользователя
+            # TODO Загружать данные из файла
             username = "root"
             email = "admin@mail.com"
             password = "root"
