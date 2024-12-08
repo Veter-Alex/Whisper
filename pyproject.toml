@@ -6,10 +6,11 @@ authors = ["Veter-Alex <Vet-an@yandex.ru>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "3.12.8"
 django = "^5.1.4"
 psycopg2-binary = "^2.9.10"
 loguru = "^0.7.3"
+python-dotenv = "^1.0.1"
 
 [build-system]
 requires = ["poetry-core"]

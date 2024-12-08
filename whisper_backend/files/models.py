@@ -1,4 +1,5 @@
 import os
+from typing import Any, Optional
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
@@ -34,12 +35,14 @@ class Directory(models.Model):
             "parent",
         )  # Имя директории уникально в пределах одного родителя
 
-    def __str__(self):
+    def __str__(self) -> str:
         # При выводе объекта в строковом формате будем показывать родителя, если он есть
         return f"{self.name} (Parent: {self.parent.name if self.parent else 'None'})"
 
     @classmethod
-    def add_directory(cls, name, parent=None):
+    def add_directory(
+        cls, name: str, parent: Optional["Directory"] = None
+    ) -> "Directory":
         """
         Метод для добавления новой директории.
         """
@@ -47,13 +50,11 @@ class Directory(models.Model):
         return directory
 
     @transaction.atomic
-    def delete_directory(self):
+    def delete_directory(self) -> None:
         """
         Метод для удаления текущей директории, включая все дочерние директории и файлы.
-        Удаление дочерних объектов происходит автоматически благодаря CASCADE.
         """
         try:
-            # Просто удалим текущую директорию (связанное удаление уже обрабатывается CASCADE)
             self.delete()
         except ObjectDoesNotExist:
             pass
@@ -77,11 +78,18 @@ class File(models.Model):
         verbose_name="Родительская директория",
     )
     file = models.FileField(null=True, blank=True, verbose_name="Файл")
-    size = models.IntegerField(blank=True, null=True, verbose_name="Размер файла")
+    file_path = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Путь к файлу"
+    )
+    size = models.IntegerField(
+        blank=True, null=True, verbose_name="Размер файла"
+    )
     created_at = models.DateTimeField(
         auto_now_add=True, db_index=True, verbose_name="Дата создания"
     )
-    description = models.TextField(blank=True, null=True, verbose_name="Описание")
+    description = models.TextField(
+        blank=True, null=True, verbose_name="Описание"
+    )
     processing_status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
@@ -109,53 +117,55 @@ class File(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=["directory"]),  # Индекс для фильтрации по директории
-            models.Index(fields=["created_at"]),  # Индекс для сортировки по дате
+            models.Index(
+                fields=["directory"]
+            ),  # Индекс для фильтрации по директории
+            models.Index(
+                fields=["created_at"]
+            ),  # Индекс для сортировки по дате
         ]
         unique_together = [
             "name",
             "directory",
         ]  # Уникальность имени файла в одной директории
 
-    def save(self, *args, **kwargs):
-        if self.file:
-            self.size = os.path.getsize(self.file.path)
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        if self.file_path:
+            self.size = os.path.getsize(self.file_path)
         if self.start_transcription and self.end_transcription:
-            # Рассчитываем разницу во времени
             self.full_time_transcription = (
                 self.end_transcription - self.start_transcription
             )
         super().save(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    # @classmethod
-    # def add_file(cls, name, directory, file, description=None):
-    #     """
-    #     Метод для добавления нового файла.
-    #     """
-    #     new_file = cls.objects.create(
-    #         name=name, directory=directory, file=file, description=description
-    #     )
-    #     return new_file
     @classmethod
-    def add_file(cls, name, directory, description=None):
+    def add_file(
+        cls,
+        name: str,
+        directory: Directory,
+        file_path: Optional[str] = None,
+        description: Optional[str] = None,
+    ) -> "File":
         """
         Метод для добавления нового файла.
         """
         new_file = cls.objects.create(
-            name=name, directory=directory, description=description
+            name=name,
+            directory=directory,
+            file_path=file_path,
+            description=description,
         )
         return new_file
 
     @transaction.atomic
-    def delete_file(self):
+    def delete_file(self) -> None:
         """
         Метод для удаления текущего файла.
         """
         try:
-            # Удалим запись в базе данных
             self.delete()
         except Exception as e:
             logger.error(f"Ошибка при удалении файла {self.name}: {e}")

@@ -1,24 +1,26 @@
+import sys
+
 from django.apps import AppConfig
 
 # from django.db.models.signals import post_migrate
 from loguru import logger
-import sys
 
 
 class FilesConfig(AppConfig):
     name = "files"
 
-    def ready(self):
+    def ready(self) -> None:
         from config.models import AppSetting
-        from .db_operations import create_database
+
         from .config_operations import initialize_app_settings
+        from .db_operations import main_db_operations
         from .file_operations import sync_database_with_directory
 
         logger.debug("FilesConfig: вызван метод ready()")
         # Только для команды runserver
         if "runserver" in sys.argv:
             # Создаем базу данных и применяем миграции
-            create_database()
+            main_db_operations()
             # Проверяем и устанавливаем настройки приложения.
             initialize_app_settings(sender=self)
             # Синхронизируем структуру директории с базой данных.

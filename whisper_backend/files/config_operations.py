@@ -1,26 +1,31 @@
+from typing import Any, Dict
+
+from config.models import AppSetting
+from django.db import transaction
+from django.db.models import Model
 from loguru import logger
 
 
-def initialize_app_settings(sender, **kwargs):
+def initialize_app_settings(sender: Model, **kwargs: Dict[str, Any]) -> None:
     """Проверяет и устанавливает настройки приложения."""
-    from django.db import transaction
-
-    from config.models import AppSetting
-
     logger.info("Инициализация настроек приложения.")
     try:
         with transaction.atomic():
-            # безопасные запросы к БД
-            AppSetting.objects.get_or_create(
+            # Попытка получить или создать настройку 'root_directory'
+            setting, created = AppSetting.objects.get_or_create(
                 key="root_directory",
                 defaults={
                     "value": "D:\\Project\\project_Python\\Whisper_test_folder\\"
                 },
             )
-            root_directory = AppSetting.objects.get(key="root_directory").value
-            logger.info(
-                f"Настройка 'root_directory = {root_directory} ' создана"
-                f" или уже существует."
-            )
+            # Логирование результата
+            if created:
+                logger.info(
+                    f"Настройка 'root_directory' успешно создана с значением: {setting.value}"
+                )
+            else:
+                logger.info(
+                    f"Настройка 'root_directory' уже существует с значением: {setting.value}"
+                )
     except Exception as err:
         logger.error(f"Ошибка инициализации настроек: {err}")

@@ -1,11 +1,16 @@
 import os
+from typing import Optional
 
 from django.db import transaction
 from loguru import logger
 
+from .models import Directory, File
+
 
 @transaction.atomic
-def sync_database_with_directory(root_path, parent_directory=None):
+def sync_database_with_directory(
+    root_path: str, parent_directory: Optional["Directory"] = None
+) -> None:
     """
     Синхронизирует базу данных с файловой системой,
         начиная с заданной директории.
@@ -14,7 +19,6 @@ def sync_database_with_directory(root_path, parent_directory=None):
     :param parent_directory: Объект Directory,
         представляющий родительскую директорию в базе данных.
     """
-    from .models import Directory, File
 
     # Получаем список всех поддиректорий и файлов,
     #   которые уже есть в базе данных для текущей директории.
@@ -51,7 +55,7 @@ def sync_database_with_directory(root_path, parent_directory=None):
             if entry not in existing_directories:
                 # Если директория не существует в базе данных:
                 # Добавляем новую директорию, используя метод `add_directory`
-                #   из модели Directory.
+                # из модели Directory.
                 new_directory = Directory.add_directory(
                     name=entry, parent=parent_directory
                 )
@@ -59,11 +63,11 @@ def sync_database_with_directory(root_path, parent_directory=None):
             else:
                 # Если директория уже есть в базе данных:
                 # Извлекаем её из словаря `existing_directories`
-                #   для последующей обработки.
+                # для последующей обработки.
                 new_directory = existing_directories.pop(entry)
 
             # Рекурсивно вызываем функцию для обработки содержимого
-            #   поддиректории.
+            # поддиректории. Здесь `new_directory` передается как parent_directory
             sync_database_with_directory(full_path, new_directory)
 
     # === Обработка файлов ===
@@ -77,7 +81,9 @@ def sync_database_with_directory(root_path, parent_directory=None):
                 # Если файл не существует в базе данных:
                 # Добавляем новый файл, используя метод `add_file`
                 #   из модели File.
-                File.add_file(name=entry, directory=parent_directory)
+                File.add_file(
+                    name=entry, directory=parent_directory, file_path=full_path
+                )
                 logger.info(f"Добавлен новый файл: {entry}")
             else:
                 # Если файл уже есть в базе данных:

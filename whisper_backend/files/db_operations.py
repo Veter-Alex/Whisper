@@ -1,92 +1,97 @@
-from loguru import logger
+import os
+
 import psycopg2
+from django.contrib.auth.models import User
+from django.core.management import call_command
+from dotenv import load_dotenv
+from loguru import logger
 from psycopg2 import sql
 
+# Загрузка переменных окружения
+load_dotenv()
 
-def create_database():
-    from django.core.management import call_command
-    from django.contrib.auth.models import User
 
-    logger.info(f"Проверка базы данных.")
-
-    """Создание базы данных, если она не существует."""
-    # Параметры подключения к PostgreSQL
-    # TODO Настроить получение настроек для подключения к БД из файла настроек
-    db_name = "veteran_db"  # База данных приложения
-    db_user = "postgres"  # Имя пользователя для подключения к postgres
-    db_password = "root"  # Пароль для подключения к postgres
-    db_host = "localhost"  # Хост postgres
-    db_port = "5432"  # Порт postgres
+def check_or_create_database() -> None:
+    """Проверяет наличие базы данных, при необходимости создаёт её."""
+    db_name = os.getenv("DB_NAME", "veteran_db")
+    db_user = os.getenv("DB_USER", "postgres")
+    db_password = os.getenv("DB_PASSWORD", "root")
+    db_host = os.getenv("DB_HOST", "localhost")
+    db_port = os.getenv("DB_PORT", "5432")
 
     try:
-        # Соединение с PostgreSQL
+        # Подключение к PostgreSQL
         conn = psycopg2.connect(
-            # dbname="postgres",
-            user=db_user,
-            password=db_password,
-            host=db_host,
-            port=db_port,
+            user=db_user, password=db_password, host=db_host, port=db_port
         )
         conn.autocommit = True
         cursor = conn.cursor()
 
-        # Проверяем, существует ли база данных
+        # Проверяем наличие базы данных
         cursor.execute(
-            f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{db_name}';"
+            "SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s;",
+            (db_name,),
         )
         exists = cursor.fetchone()
 
         if exists:
             logger.info(f"База данных '{db_name}' уже существует.")
         else:
-            # Создаем базу данных
-            logger.info(f"База '{db_name}' отсутствует.")
-            logger.info(f"Создание базы данных '{db_name}'.")
+            logger.info(f"База данных '{db_name}' отсутствует. Создаём...")
             cursor.execute(
                 sql.SQL("CREATE DATABASE {}").format(sql.Identifier(db_name))
             )
             logger.info(f"База данных '{db_name}' успешно создана.")
+
         cursor.close()
         conn.close()
     except Exception as err:
-        logger.error(f"Ошибка при создании базы данных: {err}")
-    else:
-        try:
-            # Применяем миграции
-            logger.info("Применение миграций...")
-            call_command("makemigrations")
-            call_command("migrate")
-            logger.info("Миграции успешно применены.")
-        except Exception as err:
-            logger.error(f"Ошибка при создании миграций: {err}")
+        logger.error(f"Ошибка при проверке/создании базы данных: {err}")
+        raise
 
-        try:
-            # Создание супер пользователя Django
-            logger.info("Создание супер пользователя Django...")
 
-            # Настройка Django окружения
-            # Не нужно настраивать!! Вызывает ошибку!!
-            # Вызывается в manage.py, один раз!!
-            # os.environ.setdefault(
-            #     "DJANGO_SETTINGS_MODULE",
-            #     "whisper_backend.settings",
-            # )
-            # django.setup()
+def apply_migrations() -> None:
+    """Применяет миграции Django."""
+    try:
+        logger.info("Применение миграций...")
+        call_command("makemigrations")
+        call_command("migrate")
+        logger.info("Миграции успешно применены.")
+    except Exception as err:
+        logger.error(f"Ошибка при применении миграций: {err}")
+        raise
 
-            # Данные супер пользователя
-            # TODO Загружать данные из файла
-            username = "root"
-            email = "admin@mail.com"
-            password = "root"
 
-            if not User.objects.filter(username=username).exists():
-                User.objects.create_superuser(
-                    username=username, email=email, password=password
-                )
-                logger.info("Супер пользователь Django успешно создан.")
-            else:
-                logger.info(
-                    f"Супер пользователь Django '{username}' уже существует."
-                )
-        except Exception as err:
-            logger.error(f"Ошибка при создании супер пользователя: {err}")
+def create_superuser() -> None:
+    """Создаёт суперпользователя Django."""
+    try:
+        username = os.getenv("SUPERUSER_NAME", "root")
+        email = os.getenv("SUPERUSER_EMAIL", "admin@mail.com")
+        password = os.getenv("SUPERUSER_PASSWORD", "root")
+
+        if not User.objects.filter(username=username).exists():
+            User.objects.create_superuser(
+                username=username, email=email, password=password
+            )
+            logger.info(f"Суперпользователь '{username}' успешно создан.")
+        else:
+            logger.info(f"Суперпользователь '{username}' уже существует.")
+    except Exception as err:
+        logger.error(f"Ошибка при создании суперпользователя: {err}")
+        raise
+
+
+def main_db_operations() -> None:
+    """Основной процесс."""
+    try:
+        logger.info("Инициализация базы данных...")
+        check_or_create_database()
+        apply_migrations()
+        create_superuser()
+        logger.info("Инициализация завершена успешно.")
+    except Exception as err:
+        logger.error(f"Произошла ошибка: {err}")
+
+
+if __name__ == "__main__":
+    main_db_operations()

@@ -20,8 +20,10 @@ media/
 staticfiles/
 
 # Virtualenv
+.venv/
 venv/
 env/
+.env/
 ENV/
 venv.bak/
 env.bak/
